@@ -14,7 +14,7 @@ Configuring RabbitMq with Ansible on AWS EC2
 - AWS CloudFormation
 
 ## Overview<a name="overview"></a>
-1. Creating 3 RabbitMq nodes with EC2 using Cloudformation Template
+1. Creating three RabbitMq nodes with EC2 using Cloudformation Template
 
 2. Using Ansible configure RabbitMq clusters with 3 nodes (EC2), tasks include
    - Set up host names for RabbitMq nodes communication
@@ -29,7 +29,7 @@ Configuring RabbitMq with Ansible on AWS EC2
 ![File tree](https://github.com/Ailihamu/Configuring-RabbitMq-with-Ansible-on-AWS/blob/main/Pics/File_tree.png)
 
 ## Results<a name="results"></a>
-1. Creating 3 EC2 instance by using cloudformation template.
+1. Creating three EC2 instances by using cloudformation template.
 
 ![EC2 nodes](https://github.com/Ailihamu/Configuring-RabbitMq-with-Ansible-on-AWS/blob/main/Pics/EC2_Node_IPs.png)
 
