@@ -1,0 +1,184 @@
+
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: 
+  EC2 Instances for RabbitMq cluster
+
+Parameters:
+  InstanceImageID:
+    Type: AWS::EC2::Image::Id
+    Default: ami-03d56f451ca110e99
+
+  InstanceType:
+    Type: String
+    Default: t2.micro
+
+  InstanceKeyName:
+    Description: Amazon EC2 KeyPair for Nexus server
+    Type: AWS::EC2::KeyPair::KeyName
+
+  VPC:
+    Type: AWS::EC2::VPC::Id   
+
+  SubnetID:
+    Type: AWS::EC2::Subnet::Id
+
+Resources:
+  
+  EC2Instance1:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref InstanceImageID
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref InstanceKeyName
+      NetworkInterfaces:
+        -
+          DeleteOnTermination: true
+          AssociatePublicIpAddress: True
+          DeviceIndex: 0
+          GroupSet: 
+            - !Ref SecurityGroup
+          SubnetId: !Ref SubnetID
+      UserData:  
+        Fn::Base64: |
+          Content-Type: multipart/mixed; boundary="//"
+          MIME-Version: 1.0
+
+          --//
+          Content-Type: text/cloud-config; charset="us-ascii"
+          MIME-Version: 1.0
+          Content-Transfer-Encoding: 7bit
+          Content-Disposition: attachment; filename="cloud-config.txt"
+
+          #cloud-config
+          cloud_final_modules:
+          - [scripts-user, always]
+          output: {all: '| tee -a /var/log/cloud-init-output.log'}
+
+          --//
+          Content-Type: text/x-shellscript; charset="us-ascii"
+          MIME-Version: 1.0
+          Content-Transfer-Encoding: 7bit
+          Content-Disposition: attachment; filename="userdata.txt"
+
+          #!/bin/bash
+          set -x
+          exec > >(tee /var/log/user-data.log|logger -t user-data ) 2>&1
+          yum install awscli -y
+          --//--
+
+    
+  EC2Instance2:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref InstanceImageID
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref InstanceKeyName
+      NetworkInterfaces:
+        -
+          DeleteOnTermination: true
+          AssociatePublicIpAddress: True
+          DeviceIndex: 0
+          GroupSet: 
+            - !Ref SecurityGroup
+          SubnetId: !Ref SubnetID
+      UserData:  
+        Fn::Base64: |
+          Content-Type: multipart/mixed; boundary="//"
+          MIME-Version: 1.0
+
+          --//
+          Content-Type: text/cloud-config; charset="us-ascii"
+          MIME-Version: 1.0
+          Content-Transfer-Encoding: 7bit
+          Content-Disposition: attachment; filename="cloud-config.txt"
+
+          #cloud-config
+          cloud_final_modules:
+          - [scripts-user, always]
+          output: {all: '| tee -a /var/log/cloud-init-output.log'}
+
+          --//
+          Content-Type: text/x-shellscript; charset="us-ascii"
+          MIME-Version: 1.0
+          Content-Transfer-Encoding: 7bit
+          Content-Disposition: attachment; filename="userdata.txt"
+
+          #!/bin/bash
+          set -x
+          exec > >(tee /var/log/user-data.log|logger -t user-data ) 2>&1
+          yum install awscli -y
+          --//--
+
+    
+  EC2Instance3:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref InstanceImageID
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref InstanceKeyName
+      NetworkInterfaces:
+        -
+          DeleteOnTermination: true
+          AssociatePublicIpAddress: True
+          DeviceIndex: 0
+          GroupSet: 
+            - !Ref SecurityGroup
+          SubnetId: !Ref SubnetID
+      UserData:  
+        Fn::Base64: |
+          Content-Type: multipart/mixed; boundary="//"
+          MIME-Version: 1.0
+
+          --//
+          Content-Type: text/cloud-config; charset="us-ascii"
+          MIME-Version: 1.0
+          Content-Transfer-Encoding: 7bit
+          Content-Disposition: attachment; filename="cloud-config.txt"
+
+          #cloud-config
+          cloud_final_modules:
+          - [scripts-user, always]
+          output: {all: '| tee -a /var/log/cloud-init-output.log'}
+
+          --//
+          Content-Type: text/x-shellscript; charset="us-ascii"
+          MIME-Version: 1.0
+          Content-Transfer-Encoding: 7bit
+          Content-Disposition: attachment; filename="userdata.txt"
+
+          #!/bin/bash
+          set -x
+          exec > >(tee /var/log/user-data.log|logger -t user-data ) 2>&1
+          yum install awscli -y
+          --//--
+
+
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: 'Test Security Group'
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all traffic for test purposes (not recomended)
+          IpProtocol: -1
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all traffic for test purposes (not recomended)
+          IpProtocol: -1
+      VpcId: !Ref VPC
+
+Outputs:
+  
+  Nod1IP:
+    Description: The Public IP of nod1
+    Value: !GetAtt EC2Instance1.PublicIp
+
+  Nod2IP:
+    Description: The Public IP of nod2
+    Value: !GetAtt EC2Instance2.PublicIp  
+
+  Nod3IP:
+    Description: The Public IP of nod3
+    Value: !GetAtt EC2Instance3.PublicIp
+
