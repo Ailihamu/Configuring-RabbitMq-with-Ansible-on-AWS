@@ -1,0 +1,96 @@
+---
+- name: Import Signing GPG key
+  rpm_key:
+    key: https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc
+    state: present
+
+- name: Import erlang GPG key
+  rpm_key:
+    key: https://packagecloud.io/rabbitmq/erlang/gpgkey
+    state: present
+
+- name: Import Rabbitserver GPG key
+  rpm_key:
+    key: https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey
+    state: present
+
+- name: Copy repository file to /etc/yum.repos.d/rabbitmq.repo
+  copy:
+    src: files/rabbitmq.repo
+    dest: /etc/yum.repos.d/rabbitmq.repo
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+    
+- name: Install packages
+  yum:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items:
+    - epel-release
+    - logrotate
+    - socat
+    - erlang
+    - rabbitmq-server
+
+- name: Run the rabbit nodes
+  systemd:
+    state: started
+    name: rabbitmq-server.service
+
+- name: Enable the rabbit nodes
+  systemd:
+    enabled: yes
+    name: rabbitmq-server.service
+
+- name: Enable rabbitmq plugins
+  rabbitmq_plugin:
+    names: rabbitmq_management,rabbitmq_tracing,rabbitmq_federation
+    state: enabled
+  become: yes
+  notify:
+  - restart rabbitmq
+
+- name: starting rabbitmq app
+  command: rabbitmqctl start_app
+  become: yes
+
+- name: add user
+  rabbitmq_user:
+    user: "{{ item }}"
+    password: "{{ ADMIN_PASS }}"
+    tags: administrator,{{item}}
+    vhost: /
+    node: rabbit@{{ ansible_hostname }}
+    configure_priv: .*
+    write_priv: .*
+    read_priv: .*
+    state: present
+  with_items:
+  - admin
+
+- name: Capturing Erlang Cookie On Master
+  command: "cat {{ rabbitmq_erlang_cookie_file }}"
+  become: yes
+  register: "rabbitmq_erlang_cookie"
+  when: inventory_hostname == "rabbit-node1"
+
+- name: Setting Erlang Cookie Of Master on Non-Master
+  set_fact:
+    rabbitmq_erlang_cookie: "{{ hostvars['rabbit-node1']['rabbitmq_erlang_cookie']['stdout'] }}"
+  when: inventory_hostname != "rabbit-node1"
+
+- name: Copy erlang cookie
+  template:
+    src: erlang.cookie.j2
+    dest: "{{ rabbitmq_erlang_cookie_file }}"
+    owner: rabbitmq
+    group: rabbitmq
+    mode: 0600
+    # backing up in case the need to recover
+    backup: yes
+  become: yes
+  when: inventory_hostname != "rabbit-node1"
+  notify:
+  - restart rabbitmq

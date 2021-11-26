@@ -1,0 +1,24 @@
+---
+- debug:
+    msg:
+      - 'ansible_host = {{ ansible_host }}'
+      - 'ansible_hostname = {{ ansible_hostname }}'
+      - 'inventory_hostname = {{ inventory_hostname }}'
+      - 'group_names = {{ group_names }}'
+  tags: always
+
+
+#Early task to set hostname if not already set
+- name: Set hostname to what is set in inventory
+  hostname:
+    name: "{{ force_hostname | default(inventory_hostname) }}"
+  tags: centos, bootstrap
+  when: ansible_bios_version.endswith('amazon')
+
+#Setup domain name
+- name: Update /etc/hosts from inventory
+  lineinfile: dest=/etc/hosts regexp='.*{{item}}$' line='{{hostvars[item].ansible_default_ipv4.address}} {{item}}' state=present
+  with_items: '{{groups.all_group}}'
+  tags:
+    - hosts
+
