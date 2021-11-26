@@ -16,6 +16,7 @@ Configuring RabbitMq with Ansible on AWS EC2
 
 ## Overview<a name="overview"></a>
 1. Creating 3 RabbitMq nodes with EC2 using Cloudformation Template
+
 2. Using Ansible configure RabbitMq clusters with 3 nodes (EC2), tasks include
    - Set up host names for RabbitMq nodes communication
    - Import GPG keys, set up Rabbit-server and Erlang repository
