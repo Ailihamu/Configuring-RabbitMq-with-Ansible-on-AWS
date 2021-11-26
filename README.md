@@ -7,7 +7,6 @@ Configuring RabbitMq with Ansible on AWS EC2
 2. [Overview](#overview)
 3. [File Descriptions](#files)
 4. [Results](#results)
-5. [Licensing, Authors, and Acknowledgements](#licensing)
 
 ## Prerequisite and Installation <a name="installation"></a>
 - AWS Account
