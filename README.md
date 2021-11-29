@@ -33,9 +33,11 @@ Configuring RabbitMq with Ansible on AWS EC2
 
 ![EC2 nodes](https://github.com/Ailihamu/Configuring-RabbitMq-with-Ansible-on-AWS/blob/main/Pics/EC2_Node_IPs.png)
 
+
 2. Running Ansible playbook.
 
 ![EC2 nodes](https://github.com/Ailihamu/Configuring-RabbitMq-with-Ansible-on-AWS/blob/main/Pics/Cluster_stat.png)
+
 
 3. RabbitMq Cluster Dashboard
 
